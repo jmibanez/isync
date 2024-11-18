@@ -1013,7 +1013,7 @@ box_loaded( int sts, message_t *msgs, int total_msgs, int recent_msgs, void *aux
 						sflags = sanitize_flags( sflags, svars, t );
 						if ((t != xt) && (srec->status & (S_EXPIRE | S_EXPIRED))) {
 							/* Don't propagate deletion resulting from expiration. */
-							debug( "  near side expiring\n" );
+							debug( "  %s side expiring\n", str_fn[xt] );
 							sflags &= ~F_DELETED;
 						}
 						if (srec->status & S_DUMMY(t^1)) {
@@ -1204,7 +1204,7 @@ box_loaded( int sts, message_t *msgs, int total_msgs, int recent_msgs, void *aux
 			if (!srec->uid[xt^1])
 				continue;
 			if (!(srec->status & S_PENDING)) {
-				// We ignore unpaired far-side messages, as there is obviously nothing
+				// We ignore unpaired keep-side messages, as there is obviously nothing
 				// to expire in the first place.
 				if (!srec->msg[xt])
 					continue;
