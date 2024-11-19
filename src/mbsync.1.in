@@ -802,7 +802,7 @@ No attempt is made to calculate the totals in advance, so they grow over
 time as more information is gathered.
 .P
 Irrespective of output redirection, \fBmbsync\fR will print a summary
-of the above in plain language upon completion, except in quiet mode.
+of the above upon completion, except in quiet mode.
 .
 .SH RECOMMENDATIONS
 Make sure your IMAP server does not auto-expunge deleted messages - it is

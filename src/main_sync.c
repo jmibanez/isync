@@ -9,7 +9,6 @@
 
 #define nz(a, b) ((a) ? (a) : (b))
 
-static int ops_any[2], trash_any[2], expunge_any[2];
 static int chans_total, chans_done;
 static int boxes_total, boxes_done;
 
@@ -84,25 +83,10 @@ summary( void )
 	if (!boxes_done)
 		return;  // Shut up if we errored out early.
 
-	printf( "Processed %d box(es) in %d channel(s)", boxes_done, chans_done );
-	for (int t = 2; --t >= 0; ) {
-		if (ops_any[t])
-			printf( (DFlags & DRYRUN) ?
-			            ",\nwould %s %d new message(s) and %d flag update(s)" :
-			            ",\n%sed %d new message(s) and %d flag update(s)",
-			        str_hl[t], new_done[t], flags_done[t] );
-		if (trash_any[t])
-			printf( (DFlags & DRYRUN) ?
-			            ",\nwould move %d %s message(s) to trash" :
-			            ",\nmoved %d %s message(s) to trash",
-			        trash_done[t], str_fn[t] );
-		if (expunge_any[t])
-			printf( (DFlags & DRYRUN) ?
-			            ",\nwould expunge %d message(s) from %s" :
-			            ",\nexpunged %d message(s) from %s",
-			        expunge_done[t], str_fn[t] );
-	}
-	puts( "." );
+	printf( "Channels: %d    Boxes: %d    Far: +%d *%d #%d -%d    Near: +%d *%d #%d -%d\n",
+	        chans_done, boxes_done,
+	        new_done[F], flags_done[F], trash_done[F], expunge_done[F],
+	        new_done[N], flags_done[N], trash_done[N], expunge_done[N] );
 }
 
 static int
@@ -243,14 +227,6 @@ add_channel( chan_ent_t ***chanapp, channel_conf_t *chan, int ops[] )
 			       str_fn[t], chan->stores[t]->name );
 			free( ce );
 			return NULL;
-		}
-		if (chan->ops[t] & OP_MASK_TYPE)
-			ops_any[t] = 1;
-		if (chan->ops[t] & (OP_EXPUNGE | OP_EXPUNGE_SOLO)) {
-			expunge_any[t] = 1;
-			if (chan->stores[t]->trash ||
-			    (chan->stores[t^1]->trash && chan->stores[t^1]->trash_remote_new))
-				trash_any[t] = 1;
 		}
 	}
 
