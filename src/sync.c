@@ -1229,6 +1229,8 @@ box_loaded( int sts, message_t *msgs, int total_msgs, int recent_msgs, void *aux
 					// but we may be pulling in the real ones.
 					nflags = (srec->pflags | srec->aflags[xt]) & ~srec->dflags[xt];
 				} else {
+					if (!srec->msg[xt^1])
+						continue;
 					nflags = srec->msg[xt^1]->flags;
 				}
 			}
