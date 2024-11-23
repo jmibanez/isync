@@ -511,7 +511,7 @@ box_opened2( sync_vars_t *svars, int t )
 	channel_conf_t *chan;
 	sync_rec_t *srec;
 	uint_array_alloc_t mexcs;
-	uint opts[2], fails, minwuid;
+	uint opts[2], minwuid;
 
 	svars->state[t] |= ST_SELECTED;
 	if (!(svars->state[t^1] & ST_SELECTED))
@@ -520,22 +520,12 @@ box_opened2( sync_vars_t *svars, int t )
 	ctx[1] = svars->ctx[1];
 	chan = svars->chan;
 
-	fails = 0;
-	for (t = 0; t < 2; t++)
-		if (svars->uidval[t] != UIDVAL_BAD && svars->uidval[t] != svars->newuidval[t])
-			fails++;
-	// If only one side changed UIDVALIDITY, we will try to re-approve it further down.
-	if (fails == 2) {
-		error( "Error: channel %s: UIDVALIDITY of both far side %s and near side %s changed.\n",
-		       svars->chan->name, svars->orig_name[F], svars->orig_name[N]);
+	if (!lock_state( svars )) {
 	  bail:
 		svars->ret = SYNC_FAIL;
 		sync_bail( svars );
 		return;
 	}
-
-	if (!lock_state( svars ))
-		goto bail;
 
 	int any_dummies[2] = { 0, 0 };
 	int any_purges[2] = { 0, 0 };
@@ -574,9 +564,11 @@ box_opened2( sync_vars_t *svars, int t )
 	}
 
 	opts[F] = opts[N] = 0;
-	if (fails)
-		opts[F] = opts[N] = OPEN_PAIRED | OPEN_PAIRED_IDS;
 	for (t = 0; t < 2; t++) {
+		if (svars->uidval[t] != UIDVAL_BAD && svars->uidval[t] != svars->newuidval[t]) {
+			opts[F] |= OPEN_PAIRED | OPEN_PAIRED_IDS;
+			opts[N] |= OPEN_PAIRED | OPEN_PAIRED_IDS;
+		}
 		if (any_purges[t]) {
 			debug( "resuming %d %s purge(s)\n", any_purges[t], str_fn[t] );
 			opts[t] |= OPEN_SETFLAGS;
@@ -859,8 +851,15 @@ box_loaded( int sts, message_t *msgs, int total_msgs, int recent_msgs, void *aux
 				if (!srec->msg[t^1])
 					continue;  // Partner disappeared.
 				if (!srec->msg[t^1]->msgid || strcmp( srec->msg[F]->msgid, srec->msg[N]->msgid )) {
-					error( "Error: channel %s, %s box %s: UIDVALIDITY genuinely changed (at UID %u).\n",
-					       svars->chan->name, str_fn[t], svars->orig_name[t], srec->uid[t] );
+					if (svars->uidval[t^1] != svars->newuidval[t^1]) {
+						error( "Error: channel %s, %s box %s (at UID %u):"
+						       " Unable to recover from both-sided UIDVALIDITY change,"
+						       " as it is genuine on at least one side.\n",
+						       svars->chan->name, str_fn[t], svars->orig_name[t], srec->uid[t] );
+					} else {
+						error( "Error: channel %s, %s box %s (at UID %u): UIDVALIDITY genuinely changed.\n",
+						       svars->chan->name, str_fn[t], svars->orig_name[t], srec->uid[t] );
+					}
 				  uvchg:
 					svars->ret |= SYNC_FAIL;
 					cancel_sync( svars );
