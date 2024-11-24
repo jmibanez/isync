@@ -637,6 +637,11 @@ nfmalloc( size_t sz )
 {
 	void *ret;
 
+#ifndef __GLIBC__
+	// The C standard allows NULL returns for zero-sized allocations.
+	if (!sz)
+		sz = 1;
+#endif
 	if (!(ret = malloc( sz )))
 		oom();
 	return ret;

@@ -780,6 +780,8 @@ parse_imap_list( imap_store_t *ctx, char **sp, parse_list_state_t *sts )
 				if (sts->callback->atom( ctx, NULL, bytes, AtomChunkedLiteral ) != LIST_OK)
 					goto bail;
 				sts->in_literal = ChunkedLiteral;
+				if (!bytes)
+					goto nobytes;
 				sts->big_literal = 1;
 			  get_chunked:
 				n = 1;
@@ -806,7 +808,7 @@ parse_imap_list( imap_store_t *ctx, char **sp, parse_list_state_t *sts )
 				} else if (DFlags & DEBUG_NET_ALL) {
 					printf( "%s=========\n", ctx->label );
 					fwrite( p, n, 1, stdout );
-					if (p[n - 1] != '\n')
+					if (n && p[n - 1] != '\n')
 						fputs( "\n(no-nl) ", stdout );
 					printf( "%s=========\n", ctx->label );
 				} else {
@@ -819,6 +821,7 @@ parse_imap_list( imap_store_t *ctx, char **sp, parse_list_state_t *sts )
 			bytes -= n;
 			if (bytes > 0)
 				goto postpone;
+		  nobytes:
 			if (sts->in_literal == ChunkedLiteral && sts->callback->atom( ctx, NULL, 0, AtomLiteral ) != LIST_OK)
 				goto bail;
 		  getline:

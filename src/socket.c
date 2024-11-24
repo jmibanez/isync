@@ -952,7 +952,6 @@ socket_expect_bytes( conn_t *conn, uint len )
 char *
 socket_read( conn_t *conn, uint min_len, uint max_len, uint *out_len )
 {
-	assert( min_len > 0 );
 	assert( min_len <= sizeof(conn->buf) );
 	assert( min_len <= max_len );
 
