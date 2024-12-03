@@ -17,12 +17,12 @@ if test -z "$mb"; then
 fi
 if test -z "$mb"; then
 	# still no upstream, so just describe HEAD as-is.
-	gver=$(git describe --tags HEAD)
+	gver=$(git describe --always --tags HEAD)
 else
 	# find out whether we have local work, and if so, collapse it into
 	# a single suffix. otherwise, we'd cause pointless rebuilds during
 	# development.
-	gver=$(git describe --tags $mb)
+	gver=$(git describe --always --tags $mb)
 	lcl=$(git rev-list -n 1 $mb..HEAD)
 	if test -n "$lcl"; then
 		gver="$gver-plus"
