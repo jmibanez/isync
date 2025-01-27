@@ -450,7 +450,7 @@ do_sync_chans( main_vars_t *mvars )
 			labels[F] = labels[N] = "";
 		for (int t = 0; t < 2; t++) {
 			store_t *ctx = mvars->drv[t]->alloc_store( mvars->chan->stores[t], labels[t] );
-			if ((DFlags & DEBUG_DRV) || ((DFlags & FORCEASYNC(t)) && !(dcaps[t] & DRV_ASYNC))) {
+			if ((DFlags & (DEBUG_DRV | DRYRUN)) || ((DFlags & FORCEASYNC(t)) && !(dcaps[t] & DRV_ASYNC))) {
 				mvars->drv[t] = &proxy_driver;
 				ctx = proxy_alloc_store( ctx, labels[t], DFlags & FORCEASYNC(t) );
 			}
