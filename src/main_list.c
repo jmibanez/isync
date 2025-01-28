@@ -78,6 +78,7 @@ list_store_bad( void *aux )
 {
 	list_vars_t *lvars = (list_vars_t *)aux;
 
+	lvars->done = 1;
 	lvars->drv->cancel_store( lvars->ctx );
 	lvars->cvars->ret = 1;
 	list_next_store( lvars );
