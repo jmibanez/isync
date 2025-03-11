@@ -660,11 +660,11 @@ load_config( const char *where )
 	}
 	fclose (cfile.fp);
 	if (cfile.ms_warn)
-		warn( "Notice: Master/Slave are deprecated; use Far/Near instead.\n" );
+		warn( "%s: notice: Master/Slave are deprecated; use Far/Near instead.\n", cfile.file );
 	if (cfile.renew_warn)
-		warn( "Notice: ReNew is deprecated; use Upgrade instead.\n" );
+		warn( "%s: notice: ReNew is deprecated; use Upgrade instead.\n", cfile.file );
 	if (cfile.delete_warn)
-		warn( "Notice: Delete is deprecated; use Gone instead.\n" );
+		warn( "%s: notice: Delete is deprecated; use Gone instead.\n", cfile.file );
 	cfile.err |= merge_ops( gcops, global_conf.ops, "" );
 	if (!global_conf.sync_state) {
 		const char *state_home = getenv( "XDG_STATE_HOME" );

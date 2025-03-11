@@ -3824,7 +3824,7 @@ imap_parse_store( conffile_t *cfg, store_conf_t **storep )
 			static int sslv_warned;
 			if (!sslv_warned) {
 				sslv_warned = 1;
-				warn( "Notice: SSLVersions is deprecated. Use TLSVersions instead.\n" );
+				warn( "%s: notice: SSLVersions is deprecated. Use TLSVersions instead.\n", cfg->file );
 			}
 			server->sconf.ssl_versions = 0;
 			arg = cfg->val;
@@ -3864,7 +3864,7 @@ imap_parse_store( conffile_t *cfg, store_conf_t **storep )
 			static int sslt_warned;
 			if (!sslt_warned) {
 				sslt_warned = 1;
-				warn( "Notice: SSLType is deprecated. Use TLSType instead.\n" );
+				warn( "%s: notice: SSLType is deprecated. Use TLSType instead.\n", cfg->file );
 			}
 		  tlstype:
 			if (!strcasecmp( "None", cfg->val )) {
